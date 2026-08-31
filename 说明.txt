@@ -1,0 +1,24 @@
+四季夏目桌宠（星光咖啡馆与死神之蝶）
+====================================
+
+本项目由 Sakura Desktop Pet（夜乃樱版）转换而来：
+- 角色：四季夏目（四季ナツメ，Cafe Stella and the Reapers' Butterflies）
+- 角色包：characters\Natsume\（角色卡、主题配色、立绘、语音配置）
+- 启动方式：双击 start.bat（路径必须保持纯英文，PySide6 不支持中文路径）
+
+当前状态：
+1. 立绘为占位素材（夜乃樱立绘），替换方法见 characters\Natsume\portraits\占位说明.txt；
+2. 语音已启用：本目录 tts\g50 已通过目录联接（junction）指向
+   C:\Users\ASUS\Desktop\sakura-v0.9.7-windows-x64\tts\g50，
+   程序会自动启动本地 GPT-SoVITS 并朗读回复；
+   已整合训练好的夏目 v2Pro 模型：
+   characters\Natsume\voice\models\四季夏目-e15.ckpt +
+   characters\Natsume\voice\models\四季夏目_e8_s144.pth，
+   character.json 已启用该模型对；
+   voice\models\ 中仍保留 zero-shot 底模（s1v3.ckpt / s2Gv2ProPlus.pth）
+   和旧占位模型（Sakura-* 文件），需要回退时改回 character.json 指向即可；
+   若原版 Sakura 目录被移动，请重新运行
+   scripts\reuse_tts_bundle.ps1 -Source <新的整合包路径>；
+3. LLM 对话、主动关怀、截图观察、工具调用等其余功能与原版一致。
+
+注意：data\config\api.yaml 包含你自己的 API Key，请勿外传；迁移本文件夹时请一并保留。
