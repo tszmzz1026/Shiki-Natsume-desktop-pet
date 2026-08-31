@@ -1,0 +1,58 @@
+{
+  "id": "Natsume",
+  "display_name": "四季夏目",
+  "initial_message": "……あら、いらっしゃい。……何か用？……ふん、まあ、話し相手ぐらいなら付き合ってあげてもいいわ。",
+  "card": "card.md",
+  "portrait": {
+    "default": "portraits/A020.png",
+    "expressions": {
+      "站立待机": "portraits/A020.png",
+      "开心脸红": "portraits/A061.png",
+      "张嘴疑问": "portraits/A070.png",
+      "害羞脸红": "portraits/A081.png",
+      "难过沮丧": "portraits/A130.png",
+      "不满无语": "portraits/A140.png",
+      "两眼放光": "portraits/A150.png",
+      "高兴满足": "portraits/A170.png",
+      "吃醋不满": "portraits/A230.png",
+      "自信拍胸": "portraits/B180.png",
+      "自信撩发": "portraits/E050.png",
+      "侧身无语": "portraits/E140.png",
+      "伸手命令": "portraits/I010.png",
+      "伸手抚摸": "portraits/I180.png"
+    }
+  },
+  "theme": {
+    "primary_color": "#c9544f",
+    "primary_hover_color": "#a9413d",
+    "accent_color": "#b8893a",
+    "text_color": "#3d2f2b",
+    "secondary_text_color": "#7a4a45",
+    "muted_text_color": "#a07c72",
+    "page_background_color": "#fdf7f0",
+    "panel_background_color": "#f7e4d8",
+    "input_background_color": "#ffffff",
+    "bubble_background_color": "#f7e4d8",
+    "border_color": "#e2b5a0",
+    "source": "package"
+  },
+  "reply": {
+    "tones": [
+      "中性",
+      "不满",
+      "害羞",
+      "惊讶",
+      "高兴",
+      "难过",
+      "吃醋",
+      "请求"
+    ]
+  },
+  "voice": {
+    "tone_refs": "voice/refs/ref.txt",
+    "ref_lang": "ja",
+    "text_lang": "ja",
+    "gpt_model": "voice/models/四季夏目-e15.ckpt",
+    "sovits_model": "voice/models/四季夏目_e8_s144.pth"
+  }
+}

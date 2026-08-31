@@ -16,7 +16,9 @@ runtime/
 /tts/
 env/
 node_modules/
-characters/
+characters/*
+!characters/Natsume/
+!characters/Natsume/**
 
 .pytest_cache/
 .pytest_tmp/

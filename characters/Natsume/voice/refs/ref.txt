@@ -1,0 +1,8 @@
+voice/refs/tone_refs/00_中性_nat201_002.ogg|JA|……もったいないとは思うけどな。|中性
+voice/refs/tone_refs/01_不满_nat201_004.ogg|JA|……なに？　ワタシに友達がいたらおかしい？|不满
+voice/refs/refs_padded/02_高兴_nat205_002.wav|JA|それで～？　アタシへのクリスマスプレゼントはないの？|高兴
+voice/refs/refs_padded/03_害羞_nat205_001.wav|JA|……ぅっ……。思い出させないで欲しいなぁ。恥ずかしいから、アレ。|害羞
+voice/refs/refs_padded/04_难过_nat207_001.wav|JA|……怖くなる。|难过
+voice/refs/tone_refs/05_请求_nat212_002.ogg|JA|……ノリノリのところ申し訳ないんですけど。|请求
+voice/refs/refs_padded/06_惊讶_nat201_001.wav|JA|……はぁぁぁ……ちょっと待って。心を落ち着ける時間が欲しい。|惊讶
+voice/refs/tone_refs/07_吃醋_nat212_001.ogg|JA|――で？|吃醋

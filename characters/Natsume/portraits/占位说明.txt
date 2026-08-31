@@ -1,0 +1,27 @@
+【四季夏目素材包说明】
+
+本目录现已替换为《星光咖啡馆与死神之蝶》四季夏目的官方游戏素材。
+
+立绘（portraits\）：
+- 来源：游戏 fgimage.xp3 中「2_ナツメ」立绘图层，按官方图层数据合成（ウェイトレス服 + 组合表情 + 前发 + 腮红）。
+- 共 14 张 1316x1316 透明背景 PNG，文件名与 character.json 的 14 个表情槽一一对应。
+- A020/A061/A070/A081/A130/A140/A150/A170/A230 为正面姿态；
+  B180/E140 为侧面姿态（b 套）；E050/I010/I180 为正面姿态不同表情。
+- 如需换成私服/メイド服等其他服装，可在可视化目录重新合成后替换。
+
+语音（voice\refs\tone_refs\）：
+- 来源：游戏 voice.xp3 中 nat*（四季夏目）语音，8 条按语气挑选（中性/不满/高兴/害羞/难过/请求/惊讶/吃醋）。
+- ref.txt 中的日文文本为对应场景台词的近似匹配（同一场景的台词），TTS 启用后可微调。
+- GPT-SoVITS 要求参考音频在 3~10 秒之间；其中 4 条过短（高兴/害羞/难过/惊讶）
+  已用尾部静音补齐到 3.5 秒，保存在 voice\refs\refs_padded\，ref.txt 已指向补齐后的文件。
+- 全部 2257 条夏目语音的清单（语音ID+场景+时长）见可视化目录 voice_browser.json。
+
+TTS 模型（voice\models\）：已整合训练好的四季夏目专属 v2Pro 模型，
+GPT 权重为 四季夏目-e15.ckpt，SoVITS 权重为 四季夏目_e8_s144.pth，
+character.json 已启用该模型对，配合上方 8 条真实夏目参考语音使用。
+voice\models\ 中仍保留 zero-shot 底模（s1v3.ckpt / s2Gv2ProPlus.pth）
+和旧占位模型（Sakura-* 文件），需要回退时改回 character.json 指向即可。
+训练时还生成了其他检查点（GPT e5/e10、SoVITS e4_s72），
+如需换用可复制到 voice\models\ 后同步修改 character.json。
+当前语音链路已启用：本目录 tts\g50 为 GPT-SoVITS 整合包目录联接，data\config\api.yaml 中 tts.enabled=true；
+若整合包目录失效，可运行 scripts\reuse_tts_bundle.ps1 重新建立联接，或在设置中一键下载整合包。
