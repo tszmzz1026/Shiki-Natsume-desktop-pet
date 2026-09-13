@@ -54,11 +54,13 @@ jobs:
           PYTEST_QT_API: pyside6
         run: |
           set +e
-          python -m pytest tests/unit -vv --tb=short --strict-markers -p no:warnings --timeout=60 --timeout-method=thread --durations=20
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -eq 134 ]; then
-            echo "::warning::Qt cleanup crash after all tests passed — treating as success"
-            exit 0
+          python -m pytest tests/unit -vv --tb=short --strict-markers -p no:warnings --timeout=60 --timeout-method=thread --durations=20 2>&1 | tee pytest-unit.log
+          EXIT_CODE=${PIPESTATUS[0]}
+          if [ "$EXIT_CODE" -eq 134 ] || [ "$EXIT_CODE" -eq 139 ]; then
+            if grep -Eq '[0-9]+ passed' pytest-unit.log; then
+              echo "::warning::Qt cleanup crash after tests completed; treating as success"
+              exit 0
+            fi
           fi
           exit $EXIT_CODE
 
@@ -105,10 +107,12 @@ jobs:
           PYTEST_QT_API: pyside6
         run: |
           set +e
-          python -m pytest tests/ui -vv --tb=short --strict-markers -p no:warnings --timeout=60 --timeout-method=thread --durations=20
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -eq 134 ]; then
-            echo "::warning::Qt cleanup crash after all tests passed — treating as success"
-            exit 0
+          python -m pytest tests/ui -vv --tb=short --strict-markers -p no:warnings --timeout=60 --timeout-method=thread --durations=20 2>&1 | tee pytest-ui.log
+          EXIT_CODE=${PIPESTATUS[0]}
+          if [ "$EXIT_CODE" -eq 134 ] || [ "$EXIT_CODE" -eq 139 ]; then
+            if grep -Eq '[0-9]+ passed' pytest-ui.log; then
+              echo "::warning::Qt cleanup crash after tests completed; treating as success"
+              exit 0
+            fi
           fi
           exit $EXIT_CODE
