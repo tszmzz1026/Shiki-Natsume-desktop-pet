@@ -8,6 +8,16 @@
 
 <img width="307" height="307" alt="Snipaste_2026-08-31_17-58-15" src="https://github.com/user-attachments/assets/8051b0f2-b1e5-406a-bddf-e7f59b9ebd71" />
 
+## 下载与安装
+
+[下载最新 Windows 完整包](https://github.com/tszmzz1026/Shiki-Natsume-desktop-pet/releases/latest)
+
+1. 解压到纯英文路径，例如 `D:\sakura-natsume`。
+2. 双击 `install.bat` 安装依赖。
+3. 双击 `start.bat` 启动，并在设置中填写模型 API。
+
+完整包已包含四季夏目角色、立绘和 Git LFS 语音模型，无需另外执行 `git lfs pull`。
+
 
 
 # Sakura Natsume 桌宠完整使用手册
