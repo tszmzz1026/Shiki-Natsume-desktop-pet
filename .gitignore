@@ -12,7 +12,7 @@ __pycache__/
 
 .venv/
 venv/
-runtime/
+/runtime/
 /tts/
 env/
 node_modules/

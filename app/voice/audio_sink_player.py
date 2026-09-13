@@ -540,6 +540,8 @@ def _sink_still_buffering(sink_like: object) -> bool:
         return True
     if "Idle" in state_name or "Stopped" in state_name:
         return False
+    if "Active" in state_name:
+        return True
     try:
         buffer_size = sink_like.bufferSize()
         bytes_free = sink_like.bytesFree()

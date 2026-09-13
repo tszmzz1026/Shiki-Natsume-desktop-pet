@@ -1202,6 +1202,70 @@ def test_tts_provider_finish_fallback_advances_queue_without_player_end_signal(m
     assert len(timers) == 2
 
 
+def test_tts_provider_stall_fallback_defers_while_audio_still_playing(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    import app.voice.tts as tts_module
+    import time as time_module
+
+    finished_calls: list[object] = []
+    timers: list[tuple[int, object]] = []
+    root = _runtime_root("sink_stall_fallback_defer")
+    audio_path = root / "still_playing.wav"
+    _write_silence_wav(audio_path, frame_count=16000, frame_rate=16000)
+
+    class TimerStub:
+        @staticmethod
+        def singleShot(delay_ms: int, callback: object) -> None:
+            timers.append((delay_ms, callback))
+
+    monkeypatch.setattr(tts_module, "QTimer", TimerStub)
+    provider = GPTSoVITSTTSProvider(_minimal_tts_settings())
+    monkeypatch.setattr(
+        provider,
+        "_finished",
+        types.SimpleNamespace(
+            emit=lambda callback: finished_calls.append(callback) if callback is not None else None
+        ),
+    )
+    provider._current_audio = audio_path
+    provider._current_audio_started_at = time_module.perf_counter() - 0.5
+    provider._current_finished = lambda: None
+    provider._sink_player = object()
+    provider._playback_finish_token = 3
+
+    provider._finish_current_audio_if_stalled(audio_path, 3)
+
+    assert finished_calls == []
+    assert timers and timers[0][0] == 1000
+
+    provider._current_audio_started_at = time_module.perf_counter() - 20.0
+    provider._finish_current_audio_if_stalled(audio_path, 3)
+
+    assert finished_calls
+
+
+def test_tts_provider_actively_playing_checks_media_status() -> None:
+    import app.voice.tts as tts_module
+
+    provider = GPTSoVITSTTSProvider(_minimal_tts_settings())
+
+    class PlayerStub:
+        def playbackState(self) -> object:
+            raise AttributeError("stub")
+
+        def mediaStatus(self) -> object:
+            return "BufferingMedia"
+
+    provider._player = PlayerStub()  # type: ignore[assignment]
+    assert provider._current_audio_actively_playing()
+
+    class EndedStub(PlayerStub):
+        def mediaStatus(self) -> object:
+            return tts_module.QMediaPlayer.MediaStatus.EndOfMedia
+
+    provider._player = EndedStub()  # type: ignore[assignment]
+    assert not provider._current_audio_actively_playing()
+
+
 def test_voice_playback_controller_falls_back_to_subtitle_callbacks_on_tts_error() -> None:
     from app.llm.chat_reply import ChatSegment
 

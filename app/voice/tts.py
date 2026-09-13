@@ -43,6 +43,10 @@ _AUDIO_CLEANUP_DELAY_MS = 5000
 _AUDIO_CLEANUP_MAX_ATTEMPTS = 5
 _AUDIO_FINISH_FALLBACK_GRACE_MS = 1500
 _AUDIO_FINISH_FALLBACK_MIN_MS = 2000
+# 兜底触发时若音频仍在播放，按该间隔顺延等待，避免在自然结束前截断语音。
+_AUDIO_FINISH_FALLBACK_RETRY_MS = 1000
+# 音频开始后兜底最多容忍的额外时长，超过则按卡死处理。
+_AUDIO_FINISH_FALLBACK_MAX_STALL_MS = 8000
 _LATIN_LETTER_RE = re.compile(r"[A-Za-z]")
 _CJK_TEXT_LANGS = {"ja", "all_ja", "zh", "all_zh", "ko", "all_ko", "yue", "all_yue"}
 TTS_PROVIDER_NONE = "none"
@@ -424,6 +428,7 @@ class GPTSoVITSTTSProvider(QObject):
         self._server_process: _LocalProcessHandle | None = None
         self._playback_warmup_requested = False
         self._playback_finish_token = 0
+        self._current_audio_started_at: float | None = None
         # 播放后端：audio_sink 或 media_player
         self._playback_backend: str = (
             getattr(settings, "playback_backend", _DEFAULT_PLAYBACK_BACKEND)
@@ -1321,6 +1326,7 @@ class GPTSoVITSTTSProvider(QObject):
         self._current_finished = on_finished
         self._current_started_emitted = False
         self._playback_finish_token += 1
+        self._current_audio_started_at = time.perf_counter()
 
         debug_log(
             "TTS",
@@ -1540,6 +1546,7 @@ class GPTSoVITSTTSProvider(QObject):
         self._current_started = None
         self._current_finished = None
         self._current_started_emitted = False
+        self._current_audio_started_at = None
 
     def _schedule_current_audio_finish_fallback(self, audio_path: Path, playback_finish_token: int) -> None:
         duration_ms = _wav_duration_ms(audio_path)
@@ -1581,6 +1588,32 @@ class GPTSoVITSTTSProvider(QObject):
                 },
             )
             return
+        if self._current_audio_actively_playing():
+            started_at = self._current_audio_started_at
+            if started_at is not None:
+                elapsed_ms = int((time.perf_counter() - started_at) * 1000)
+                duration_ms = _wav_duration_ms(audio_path) or 0
+                hard_cap_ms = duration_ms + _AUDIO_FINISH_FALLBACK_MAX_STALL_MS
+                if elapsed_ms < hard_cap_ms:
+                    debug_log(
+                        "TTS",
+                        "音频兜底触发时仍在播放，延长等待",
+                        {
+                            "audio_path": str(audio_path),
+                            "token": playback_finish_token,
+                            "elapsed_ms": elapsed_ms,
+                            "duration_ms": duration_ms,
+                            "retry_ms": _AUDIO_FINISH_FALLBACK_RETRY_MS,
+                        },
+                    )
+                    QTimer.singleShot(
+                        _AUDIO_FINISH_FALLBACK_RETRY_MS,
+                        lambda path=audio_path, token=playback_finish_token: self._finish_current_audio_if_stalled(
+                            path,
+                            token,
+                        ),
+                    )
+                    return
         debug_log(
             "TTS",
             "音频播放完成事件未触发，使用时长兜底完成",
@@ -1592,6 +1625,28 @@ class GPTSoVITSTTSProvider(QObject):
         )
         self._finish_current_audio("fallback_timeout")
         self._play_next()
+
+    def _current_audio_actively_playing(self) -> bool:
+        """音频兜底触发时，判断当前后端是否仍在播放。"""
+        if self._sink_player is not None:
+            return True
+        player = self._player
+        if player is None:
+            return False
+        try:
+            if player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+                return True
+        except AttributeError:
+            pass
+        try:
+            status = player.mediaStatus()
+        except AttributeError:
+            return False
+        return status not in {
+            QMediaPlayer.MediaStatus.NoMedia,
+            QMediaPlayer.MediaStatus.EndOfMedia,
+            QMediaPlayer.MediaStatus.InvalidMedia,
+        }
 
     def _schedule_audio_cleanup(self, audio_path: Path, attempt: int = 1) -> None:
         debug_log("TTS", "计划清理临时音频", {"audio_path": audio_path, "attempt": attempt})

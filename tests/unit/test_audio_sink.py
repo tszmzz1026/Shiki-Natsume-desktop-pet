@@ -62,7 +62,10 @@ def test_sink_still_buffering_true_for_active_buffer() -> None:
 def test_sink_still_buffering_false_when_idle_or_drained() -> None:
     assert not _sink_still_buffering(_FakeSink("IdleState", 4096, 0))
     assert not _sink_still_buffering(_FakeSink("StoppedState", 4096, 0))
-    assert not _sink_still_buffering(_FakeSink("ActiveState", 4096, 4096))
+
+
+def test_sink_still_buffering_true_while_active_with_full_buffer() -> None:
+    assert _sink_still_buffering(_FakeSink("ActiveState", 4096, 4096))
 
 
 def test_sink_still_buffering_conservative_when_unknown() -> None:
